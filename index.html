@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Доступный маршрут</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <span class="brand-mark">ДМ</span>
+    <nav class="main-nav" aria-label="Основная навигация">
+      <a href="#route">Маршрут</a>
+      <a href="#accessibility">Доступность</a>
+      <a href="#about">О проекте</a>
+    </nav>
+    <button class="button button-outline" id="openAuthButton" type="button">Войти</button>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="hero-eyebrow">Учебный прототип городской навигации</p>
+  <h1 class="hero-title">Доступный маршрут</h1>
+  <p class="hero-text">Постройте пешеходный маршрут и проверьте его по ключевым параметрам доступности: съезды с бордюров, лестницы, состояние покрытия и переходы.</p>
+</section>
+
+<main>
+  <section class="workspace container" id="route">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Новый маршрут</p>
+        <h2>Куда направляемся</h2>
+      </div>
+      <div class="city-status" id="cityStatus">Сочи</div>
+    </div>
+
+    <div class="route-layout">
+      <aside class="route-sidebar">
+        <form id="routeForm" class="route-form">
+          <label class="field-label" for="fromInput">Откуда</label>
+          <div class="input-wrap">
+            <span class="input-marker marker-start"></span>
+            <input id="fromInput" type="text" placeholder="Например, улица Навагинская, 9" required>
+          </div>
+
+          <label class="field-label" for="toInput">Куда</label>
+          <div class="input-wrap">
+            <span class="input-marker marker-end"></span>
+            <input id="toInput" type="text" placeholder="Например, Курортный проспект, 32" required>
+          </div>
+
+          <div class="form-row">
+            <div>
+              <label class="field-label" for="citySelect">Город</label>
+              <select id="citySelect">
+                <option value="sochi" selected>Сочи</option>
+                <option value="moscow">Москва</option>
+                <option value="kazan">Казань</option>
+                <option value="spb">Санкт-Петербург</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="userType">Категория пользователя</label>
+              <select id="userType">
+                <option value="default">По умолчанию</option>
+                <option value="wheelchair">Человек на коляске</option>
+                <option value="stroller">Родитель с коляской</option>
+                <option value="senior">Пожилой человек</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="switch-row" for="avoidStairs">
+            <span>
+              <strong>Избегать лестниц</strong>
+              <small>Предпочитать пологие участки и пандусы</small>
+            </span>
+            <input id="avoidStairs" type="checkbox" checked>
+            <span class="switch"></span>
+          </label>
+
+          <button class="button button-primary button-wide" type="submit">Построить маршрут</button>
+          <p class="form-note" id="routeMessage">Заполните поля «Откуда» и «Куда», затем нажмите «Построить маршрут».</p>
+        </form>
+
+        <div class="route-result" id="routeResult" hidden>
+          <h3>Оценка доступности</h3>
+          <p id="resultDescription">Маршрут построен с учётом пешеходных участков и доступных переходов.</p>
+        </div>
+      </aside>
+
+      <div class="map-card">
+        <div id="map" aria-label="Яндекс Карта маршрута"></div>
+        <div class="map-legend">
+          <span><i class="legend-dot legend-good"></i>Доступный участок</span>
+          <span><i class="legend-dot legend-warning"></i>Требует проверки</span>
+          <span><i class="legend-dot legend-danger"></i>Препятствие</span>
+        </div>
+        <div class="map-note">Карта и маршрутизация: Яндекс Карты. Метки доступности — предварительная оценка прототипа.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="curb-section container" id="curbs">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Дополнить карту</p>
+        <h2>Сообщить о препятствии</h2>
+      </div>
+      <p class="section-description">Загрузите фото, укажите тип и место. Метка появится на карте и будет учитываться в оценке маршрутов.</p>
+    </div>
+
+    <div class="curb-card">
+      <div class="curb-grid">
+        <div class="curb-photo">
+          <label class="button button-outline" for="curbFile">Выбрать фото</label>
+          <input id="curbFile" type="file" accept="image/*" hidden>
+          <button class="button button-primary" id="curbRun" type="button" hidden>Проверить моделью</button>
+          <div class="curb-threshold">
+            <label class="field-label" for="curbThreshold">Порог уверенности модели: <span id="curbThresholdValue">40%</span></label>
+            <input id="curbThreshold" type="range" min="10" max="90" step="5" value="40">
+          </div>
+          <p class="form-note" id="curbStatus">Выберите фото. Проверка моделью необязательна.</p>
+          <canvas id="curbCanvas" hidden></canvas>
+        </div>
+
+        <div class="curb-form">
+          <label class="field-label" for="curbType">Тип препятствия</label>
+          <select id="curbType">
+            <option value="high_curb">Высокий бордюр</option>
+            <option value="broken_curb">Сломанный бордюр</option>
+            <option value="stairs">Лестница</option>
+            <option value="bad_surface">Разбитое покрытие</option>
+            <option value="obstacle">Препятствие на пути</option>
+          </select>
+
+          <label class="field-label" for="curbCoords">Координаты</label>
+          <input class="curb-input" id="curbCoords" type="text" inputmode="decimal" placeholder="43.5855, 39.7231">
+          <div class="curb-buttons">
+            <button class="button button-outline" id="curbPick" type="button">Указать на карте</button>
+            <button class="button button-outline" id="curbLocate" type="button">Моя геопозиция</button>
+          </div>
+
+          <label class="field-label" for="curbComment">Комментарий</label>
+          <input class="curb-input" id="curbComment" type="text" placeholder="Например, нет съезда у перехода">
+
+          <button class="button button-primary button-wide curb-save" id="curbSave" type="button">Добавить в базу</button>
+          <p class="form-note" id="curbSaveMessage"></p>
+        </div>
+      </div>
+
+      <div class="curb-saved">
+        <div class="curb-saved-head">
+          <span id="curbCount">Пока нет сообщений о препятствиях.</span>
+          <button class="button button-outline" id="curbExport" type="button" hidden>Скачать JSON</button>
+        </div>
+        <ul class="curb-list" id="curbList"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="accessibility-section" id="accessibility">
+    <div class="container">
+      <div class="section-heading compact-heading">
+        <div>
+          <p class="eyebrow">Проверка пути</p>
+          <h2>Что учитывает оценка</h2>
+        </div>
+        <p class="section-description">Критерии, влияющие на доступность маршрута.</p>
+      </div>
+      <div class="criteria-grid">
+        <div class="criteria-item"><strong>Съезды с бордюров</strong><p>Наличие плавных съездов у переходов.</p></div>
+        <div class="criteria-item"><strong>Лестницы</strong><p>Участки со ступенями и перепадами высот.</p></div>
+        <div class="criteria-item"><strong>Покрытие</strong><p>Ровность и качество поверхности тротуара.</p></div>
+        <div class="criteria-item"><strong>Препятствия</strong><p>Временные и постоянные преграды на пути.</p></div>
+        <div class="criteria-item"><strong>Ширина пути</strong><p>Достаточная ширина для проезда коляски.</p></div>
+        <div class="criteria-item"><strong>Освещение</strong><p>Наличие фонарей на вечерних участках.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-section container" id="about">
+    <div>
+      <p class="eyebrow">О сервисе</p>
+      <h2>Понятная навигация для реального города</h2>
+    </div>
+    <div class="about-text">
+      <p>Сервис помогает сравнить маршрут не только по расстоянию, но и по доступности городской инфраструктуры. Информация о препятствиях отображается прямо на карте и сопровождается пояснениями.</p>
+      <p class="disclaimer">Оценка является предварительной и не заменяет личную проверку маршрута перед поездкой.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <span>Доступный маршрут</span>
+    <span>Учебный прототип, 2026</span>
+  </div>
+</footer>
+
+<div class="modal-backdrop" id="authModal" hidden>
+  <section class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <button class="modal-close" id="closeAuthButton" type="button" aria-label="Закрыть">×</button>
+    <p class="eyebrow">Личный кабинет</p>
+    <h2 id="authTitle">Сохранить маршруты</h2>
+    <p class="modal-description">Создайте учётную запись, чтобы сохранять адреса и результаты оценки в этом браузере.</p>
+    <form id="authForm" class="auth-form">
+      <label class="field-label" for="nameInput">Имя</label>
+      <input id="nameInput" type="text" placeholder="Ваше имя" required>
+      <label class="field-label" for="emailInput">Электронная почта</label>
+      <input id="emailInput" type="email" placeholder="name@example.com" required>
+      <label class="field-label" for="passwordInput">Пароль</label>
+      <input id="passwordInput" type="password" placeholder="Не менее 6 символов" minlength="6" required>
+      <button class="button button-primary button-wide" type="submit">Создать учётную запись</button>
+      <p class="auth-message" id="authMessage"></p>
+    </form>
+  </section>
+</div>
+
+<script src="https://api-maps.yandex.ru/2.1/?apikey=41783075-2a42-453e-b742-644090ed2baa&lang=ru_RU" type="text/javascript"></script>
+<script src="script.js"></script>
+<script src="curb-model.js"></script>
+</body>
+</html>
